@@ -6,7 +6,7 @@ def process_file(m_file_path, output_dir):
     old_filename = m_file_path  # 原文件路径（通过参数传入）
     # 确保输出目录存在
     os.makedirs(output_dir, exist_ok=True)
-    
+
     # 月份缩写映射表
     month_map = {
         'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
@@ -32,7 +32,7 @@ def process_file(m_file_path, output_dir):
         with open(old_filename, 'r', encoding='utf-8') as f:
             all_lines = f.readlines()
             used_encoding = 'utf-8'
-        
+
         # 查找Subject和Date行
         for i, line in enumerate(all_lines):
             stripped_line = line.lstrip()
@@ -47,7 +47,7 @@ def process_file(m_file_path, output_dir):
             with open(old_filename, 'r', encoding='gbk') as f:
                 all_lines = f.readlines()
                 used_encoding = 'gbk'
-            
+
             for i, line in enumerate(all_lines):
                 stripped_line = line.lstrip()
                 if stripped_line.startswith('Subject:') and not subject_content:
@@ -73,23 +73,23 @@ def process_file(m_file_path, output_dir):
         raw_date = date_content.strip()
         if ',' in raw_date:
             raw_date = raw_date.split(',', 1)[1].strip()
-        
+
         date_parts = raw_date.split()
         if len(date_parts) < 4:
             raise ValueError("日期格式不完整，无法解析")
-        
+
         day, month_abbr, year, time_str = date_parts[0], date_parts[1], date_parts[2], date_parts[3]
         month = month_map.get(month_abbr, None)
         if not month:
             raise ValueError(f"无法识别的月份：{month_abbr}")
-        
+
         day = day.zfill(2)
         time_parts = time_str.split(':')[:3]
         if len(time_parts) != 3:
             raise ValueError("时间格式不正确（需时:分:秒）")
         hour, minute, second = [p.zfill(2) for p in time_parts]
         second = second.split('.')[0]  # 移除秒后的小数部分
-        
+
         formatted_date = f"{year}{month}{day}{hour}{minute}{second}"  # 纯数字日期
     except Exception as e:
         print(f"日期处理失败：{e}")
@@ -133,7 +133,6 @@ def process_file(m_file_path, output_dir):
         new_content = all_lines[subject_line_index:]
         with open(new_file_path, 'w', encoding=used_encoding) as f:
             f.writelines(new_content)
-        print(f"{new_file_path}")  # 输出完整路径，供外部脚本捕获
     except Exception as e:
         print(f"创建新文件时出错：{e}")
         return
@@ -144,6 +143,6 @@ if __name__ == "__main__":
     parser.add_argument('-i', '--file', required=True, help='指定m文件的路径（例如：./m 或 /path/to/m）')
     parser.add_argument('-o', '--output', required=True, help='指定新文件的输出目录（例如：./output 或 /path/to/output）')
     args = parser.parse_args()
-    
+
     # 调用处理函数（传入原文件路径和输出目录）
     process_file(args.file, args.output)

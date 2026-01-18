@@ -9,7 +9,7 @@ A bash script to process files generated from a source file (typically named `m`
 2. Manages Git repository state in the source file's directory
 3. Organizes generated files by year-month
 4. Merges files into monthly batches with a maximum size of 9.5MiB
-5. Stops processing when encountering files older than a specified date
+5. Stops processing when the latest git commit date is on or before a specified end date
 
 ## Prerequisites
 
@@ -40,11 +40,11 @@ Notes on EROL Repositories:
 After cloning the EROL repository, run m2a.sh to process the email data, specifying the path to the repo's m file.
 
 ```bash
-./m2a.sh -o <output_directory> -e <end_date> -i <path_to_m_file>
+./m2a.sh -o <output_directory> -e <end_date_yyyymmdd> -i <path_to_m_file>
 ```
 
 e.g.
 
 ```
-./m2a.sh -o ./qemu-devel-email -e 202101 -i ./linux-mm-0-repo/m
+./m2a.sh -o ./qemu-devel-email -e 20210101 -i ./linux-mm-0-repo/m
 ```

@@ -20,8 +20,8 @@ done
 
 # 检查必要参数是否提供
 if [ -z "$dir_name" ] || [ -z "$end_ym" ] || [ -z "$m_file_path" ]; then
-    echo "用法: $0 -f <文件夹名称> -e <结束日期(格式：YYYYMM)> -i <m文件的路径>"
-    echo "示例: $0 -f qemu-devel-email -e 202501 -i ./m （处理指定路径的m文件）"
+    echo "用法: $0 -o <文件夹名称> -e <结束日期(格式：YYYYMMDD)> -i <m文件的路径>"
+    echo "示例: $0 -o qemu-devel-email -e 20250101 -i ./m （处理指定路径的m文件）"
     exit 1
 fi
 
@@ -41,8 +41,8 @@ if [ ! -d "$m_dir_path/.git" ]; then
 fi
 
 # 验证结束日期格式
-if ! [[ $end_ym =~ ^[0-9]{6}$ ]]; then
-    echo "错误：结束日期必须是6位数字（格式YYYYMM，例如202501）" >&2
+if ! [[ $end_ym =~ ^[0-9]{8}$ ]]; then
+    echo "错误：结束日期必须是8位数字（格式YYYYMMDD，例如20250101）" >&2
     exit 1
 fi
 
@@ -52,8 +52,13 @@ if [ "$month" -lt 1 ] || [ "$month" -gt 12 ]; then
     echo "错误：月份必须在01-12之间（输入的月份为$month）" >&2
     exit 1
 fi
+day="${end_ym:6:2}"
+if [ "$day" -lt 1 ] || [ "$day" -gt 31 ]; then
+    echo "错误：日期必须在01-31之间（输入的日期为$day）" >&2
+    exit 1
+fi
 
-echo "开始处理，将持续执行直到遇到早于 $end_ym 的文件..."
+echo "开始处理，将持续执行直到最新提交日期小于等于 $end_ym ..."
 echo "目标文件夹: $dir_name"
 echo "使用的m文件路径: $m_file_path"
 echo "合并文件最大限制: 8MiB"
@@ -69,6 +74,16 @@ while [ $stop_flag -eq 0 ]; do
     if ! python format.py -i "$m_file_path" -o "$m_dir_path"; then
         echo "错误：python format.py 执行失败（使用m文件：$m_file_path）" >&2
         exit 1
+    fi
+
+    latest_commit_ymd=$(git -C "$m_dir_path" log -1 --format=%cd --date=format:%Y%m%d 2>/dev/null)
+    if [ -z "$latest_commit_ymd" ]; then
+        echo "错误：无法获取仓库 '$m_dir_path' 最新提交日期" >&2
+        exit 1
+    fi
+    if [ "$latest_commit_ymd" -le "$end_ym" ]; then
+        echo "→ 检测到最新提交日期 $latest_commit_ymd 小于等于结束日期 $end_ym，将在本轮处理后停止"
+        stop_flag=1
     fi
     
     # 2. 回退git提交（指定m所在文件夹）
@@ -92,12 +107,6 @@ while [ $stop_flag -eq 0 ]; do
         filename=$(basename "$file")
         # 提取文件名中的年月（前6位）
         file_ym="${filename:0:6}"
-        
-        # 检查是否需要停止
-        if [ "$file_ym" -lt "$end_ym" ]; then
-            echo "→ 检测到文件年月 $file_ym 早于结束日期 $end_ym，将在本轮处理后停止"
-            stop_flag=1
-        fi
         
         # 创建目标文件夹并移动文件（从m所在目录移动到目标目录）
         target_dir="$dir_name/$file_ym"
@@ -155,6 +164,6 @@ while [ $stop_flag -eq 0 ]; do
 done
 
 echo "----------------------------------------"
-echo "处理结束（已遇到早于 $end_ym 的文件）"
+echo "处理结束（最新提交日期已达到结束日期 $end_ym）"
 echo "文件已保存至: $dir_name"
 echo "合并文件格式: YYYYMM_编号.txt（单个文件不超过8MiB）"

@@ -1,10 +1,10 @@
-# m2ima.sh
+# m2a.sh
 
 A bash script to process files generated from a source file (typically named `m`), organize them by date, and merge them into size-constrained monthly batches.
 
 ## Overview
 
-`m2ima.sh` automates processing of files derived from a source file (specified via `-i`). It:
+`m2a.sh` automates processing of files derived from a source file (specified via `-i`). It:
 1. Generates output files using `email.py`
 2. Manages Git repository state in the source file's directory
 3. Organizes generated files by year-month
@@ -35,16 +35,16 @@ Notes on EROL Repositories:
 - Each EROL repository contains a core source file (typically named m) that stores the raw email data.
 - Ensure the cloned repository has the m file (located in the root of the repo directory) before running the script.
 
-### Step 2: Use m2ima.sh to Process the Repository
+### Step 2: Use m2a.sh to Process the Repository
 
-After cloning the EROL repository, run m2ima.sh to process the email data, specifying the path to the repo's m file.
+After cloning the EROL repository, run m2a.sh to process the email data, specifying the path to the repo's m file.
 
 ```bash
-./m2ima.sh -o <output_directory> -e <end_date> -i <path_to_m_file>
+./m2a.sh -o <output_directory> -e <end_date> -i <path_to_m_file>
 ```
 
 e.g.
 
 ```
-./m2ima.sh -o ./qemu-devel-email -e 202101 -i ./linux-mm-0-repo/m
+./m2a.sh -o ./qemu-devel-email -e 202101 -i ./linux-mm-0-repo/m
 ```

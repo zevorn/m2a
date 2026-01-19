@@ -11,6 +11,9 @@ Usage:
 Example:
   ./batch.sh -o ./out -s 20260110 -e 20260116 \
     -r linux-mm=https://lore.kernel.org/linux-mm/2 \
+    -r linux-kvm=https://lore.kernel.org/kvm/1 \
+    -r linux-riscv=https://lore.kernel.org/linux-riscv/0 \
+    -r rust-for-linux=https://lore.kernel.org/rust-for-linux/0 \
     -r qemu-devel=https://lore.kernel.org/qemu-devel/3
 
 Notes:

@@ -48,3 +48,13 @@ e.g.
 ```
 ./m2a.sh -o ./qemu-devel-email -e 20210101 -i ./linux-mm-0-repo/m
 ```
+
+### Step 3: Use batch.sh to Process Multiple Repositories
+
+For batch processing, use batch.sh to fetch multiple repositories, process a time window, and merge outputs into a single set of files (auto-splitting by size).
+
+```bash
+./batch.sh -o ./out -s 20260110 -e 20260116 \
+  -r linux-mm=https://lore.kernel.org/linux-mm/2 \
+  -r qemu-devel=https://lore.kernel.org/qemu-devel/3
+```
